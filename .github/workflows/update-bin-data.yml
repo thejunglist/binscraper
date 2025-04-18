@@ -41,7 +41,7 @@ jobs:
       - name: Modify script for headless mode
         run: |
           if grep -q "headless: false" bins.js; then
-            sed -i 's/headless: false/headless: true, args: ["--no-sandbox", "--disable-setuid-sandbox"]/' bins.js
+            sed -i 's/headless: false/headless: true' bins.js
             echo "Modified bins.js for headless mode"
           fi
         
