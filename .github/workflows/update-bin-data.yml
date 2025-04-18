@@ -10,9 +10,8 @@ on:
 jobs:
   update-data:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./binscraper
+  
+     
     steps:
       - uses: actions/checkout@v3
       
