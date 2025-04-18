@@ -1,33 +1,35 @@
-name:Scrape Bins 
+name: Scrape Bins 
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 2 * * 1' # every monday at 2am 
+    - cron: '0 2 * * 1' # every day at midnight
   push:
     branches:
       - main  
-  jobs:
-    deploy:
-      runs-on: ubuntu-latest
-      permissions:
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
       contents: write
 
-  steps:
+
+    steps:
   #step 1
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      -  name: Checkout repository
+         uses: actions/checkout@v2
   
   #step 2
-  - name:set up node
-    uses: actions/setup-node@v2
-    with:
-      node-version: '18'
+      -  name: set up node
+         uses: actions/setup-node@v2
+         with:
+           node-version: '18'
 
   #step 3
-  - name: Install dependencies
-    run: npm install
+      -  name: Install Depencencies
+         run: npm install
 
   #step 4
-  - name: Run script
-    run: node scrape.js
+      - name: Run Script
+        run: bins.js
+
