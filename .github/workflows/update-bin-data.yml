@@ -1,80 +1,123 @@
- name: Create GitHub Actions compatible script
-  run: |
-    cat > github_bins.js << 'EOL'
-    import puppeteer from 'puppeteer-core';
-    import fs from 'fs';
-    
-    (async () => {
-      // Launch browser with explicit no-sandbox configuration
-      const browser = await puppeteer.launch({
-        headless: true,
-        executablePath: '/usr/bin/google-chrome',
-        args: [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
-          '--disable-gpu',
-          '--window-size=1920,1080',
-        ]
-      });
+name: Update Bin Collection Data
+on:
+  schedule:
+    - cron: '0 2 * * MON'
+  workflow_dispatch:
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
       
-      const page = await browser.newPage();
-      const result = [];
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
       
-      // Navigate to council bin collection website
-      await page.goto('https://www.west-dunbarton.gov.uk/recycling-and-waste/bin-collection-day/');
+      - name: Install Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
       
-      // Set screen size
-      await page.setViewport({width: 1080, height: 1024});
+      - name: Create package.json
+        run: |
+          echo '{
+            "name": "binscraper",
+            "version": "1.0.0",
+            "type": "module",
+            "private": true
+          }' > package.json
       
-      // Click cookie banner
-      await page.locator('button.btn:nth-child(2)').click();
+      - name: Install dependencies
+        run: npm install puppeteer-core
       
-      // Type into search box
-      await page.type('#inputPostcode', 'G83 9DR');
-      
-      // Click go
-      await page.locator('button.btn-primary:nth-child(1)').click();
-      
-      // Select dropdown
-      await page.locator('#uprn').click();
-      for (let i = 0; i < 9; i++) {
-        await page.keyboard.down("ArrowDown");
-      }
-      
-      // Click Go
-      await page.locator('.btn-success').click();
-      
-      // Wait for the results to load
-      await page.waitForSelector('.round-info');
-      
-      // Extract bin collection data
-      const binData = await page.evaluate(() => {
-        const rounds = document.querySelectorAll('.round-info');
-        
-        return Array.from(rounds).map(round => {
-          const binType = round.querySelector('div:nth-child(2)').textContent.trim();
-          const day = round.querySelector('div:nth-child(3) > span:nth-child(1)').textContent.trim();
-          const date = round.querySelector('div:nth-child(3) > span:nth-child(2)').textContent.trim();
+      - name: Create GitHub Actions compatible script
+        run: |
+          cat > github_bins.js << 'EOL'
+          import puppeteer from 'puppeteer-core';
+          import fs from 'fs';
           
-          return {
-            binType,
-            day,
-            date
-          };
-        });
-      });
+          (async () => {
+            // Launch browser with explicit no-sandbox configuration
+            const browser = await puppeteer.launch({
+              headless: true,
+              executablePath: '/usr/bin/google-chrome',
+              args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-gpu'
+              ]
+            });
+            
+            const page = await browser.newPage();
+            const result = [];
+            
+            // Navigate to council bin collection website
+            await page.goto('https://www.west-dunbarton.gov.uk/recycling-and-waste/bin-collection-day/');
+            
+            // Set screen size
+            await page.setViewport({width: 1080, height: 1024});
+            
+            // Click cookie banner
+            await page.locator('button.btn:nth-child(2)').click();
+            
+            // Type into search box
+            await page.type('#inputPostcode', 'G83 9DR');
+            
+            // Click go
+            await page.locator('button.btn-primary:nth-child(1)').click();
+            
+            // Select dropdown
+            await page.locator('#uprn').click();
+            for (let i = 0; i < 9; i++) {
+              await page.keyboard.down("ArrowDown");
+            }
+            
+            // Click Go
+            await page.locator('.btn-success').click();
+            
+            // Wait for the results to load
+            await page.waitForSelector('.round-info');
+            
+            // Extract bin collection data
+            const binData = await page.evaluate(() => {
+              const rounds = document.querySelectorAll('.round-info');
+              
+              return Array.from(rounds).map(round => {
+                const binType = round.querySelector('div:nth-child(2)').textContent.trim();
+                const day = round.querySelector('div:nth-child(3) > span:nth-child(1)').textContent.trim();
+                const date = round.querySelector('div:nth-child(3) > span:nth-child(2)').textContent.trim();
+                
+                return {
+                  binType,
+                  day,
+                  date
+                };
+              });
+            });
+            
+            console.log("Extracted bin data:", binData);
+            
+            // Write data to JSON file
+            fs.writeFileSync('binCollections.json', JSON.stringify(binData, null, 2));
+            
+            // Close the browser
+            await browser.close();
+          })().catch(error => {
+            console.error("Error running script:", error);
+            process.exit(1);
+          });
+          EOL
       
-      console.log("Extracted bin data:", binData);
+      - name: Run bin collection script
+        run: node github_bins.js
       
-      // Write data to JSON file
-      fs.writeFileSync('binCollections.json', JSON.stringify(binData, null, 2));
-      
-      // Close the browser
-      await browser.close();
-    })().catch(error => {
-      console.error("Error running script:", error);
-      process.exit(1);
-    });
-    EOL
-    
+      - name: Commit and push if changed
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add -A
+          git commit -m "Update bin collection data" || echo "No changes to commit"
+          git push
