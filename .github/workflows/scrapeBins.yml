@@ -33,3 +33,12 @@ jobs:
       - name: Run Script
         run: node ./bins.js
 
+  #step 5
+      - name: Commit and push if changed
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add binCollections.json
+          git commit -m "Update bin collection data" -a || exit 0
+          git push
+
