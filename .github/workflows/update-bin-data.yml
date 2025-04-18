@@ -19,6 +19,12 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
+
+      - name: Modify script for headless mode
+        run: |
+          cat bins.js
+          sed -i 's/const browser = await puppeteer.launch({.*})/const browser = await puppeteer.launch({ headless: true, args: ["--no-sandbox", "--disable-setuid-sandbox"] })/' bins.js
+          cat bins.js   
           
       - name: Create package.json if missing
         run: |
