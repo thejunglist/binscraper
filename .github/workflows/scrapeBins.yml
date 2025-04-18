@@ -31,5 +31,5 @@ jobs:
 
   #step 4
       - name: Run Script
-        run: bins.js
+        run: ./bins.js
 
