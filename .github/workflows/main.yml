@@ -1,0 +1,47 @@
+name: Update Bin Collection Data
+
+on:
+  schedule:
+    - cron: '0 2 * * MON'
+  workflow_dispatch:
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Create package.json
+        run: |
+          echo '{
+            "name": "binscraper",
+            "version": "1.0.0",
+            "type": "module",
+            "private": true,
+            "dependencies": {
+              "puppeteer": "^21.0.0"
+            }
+          }' > package.json
+          
+      - name: Install dependencies
+        run: npm install
+        
+      - name: Modify script for headless mode
+        run: |
+          sed -i 's/headless: false/headless: true, args: ["--no-sandbox", "--disable-setuid-sandbox"]/' bins.js
+          
+      - name: Run bin collection script
+        run: node bins.js
+        
+      - name: Commit and push if changed
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add -A
+          git commit -m "Update bin collection data" || echo "No changes to commit"
+          git push
