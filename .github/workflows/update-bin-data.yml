@@ -1,3 +1,5 @@
+
+
 name: Update Bin Collection Data
 
 on:
@@ -24,6 +26,12 @@ jobs:
         
       - name: Run bin collection script
         run: node bins.js
+
+      - name: Debug directory structure
+        run: |
+          pwd
+          ls -la
+          find . -name "package.json"
         
       - name: Commit and push if changed
         run: |
@@ -32,3 +40,5 @@ jobs:
           git add binCollections.json
           git commit -m "Update bin collection data" -a || exit 0
           git push
+
+          
