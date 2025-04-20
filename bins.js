@@ -6,9 +6,7 @@ import fs from "fs"
 (async () => {
     
 //launch browser
-const browser = await puppeteer.launch({ 
-  headless: true,
-  args: ['--no-sandbox', '--disable-setuid-sandbox'] 
+const browser = await puppeteer.launch( { headless: true
 });
 const page = await browser.newPage();
 const result = [];
