@@ -1,10 +1,5 @@
 [
   {
-    "binType": "Non-Recyclable",
-    "day": "Thursday",
-    "date": "27 November 2025"
-  },
-  {
     "binType": "Blue",
     "day": "Thursday",
     "date": "04 December 2025"
@@ -13,5 +8,10 @@
     "binType": "Brown Bin",
     "day": "Thursday",
     "date": "04 December 2025"
+  },
+  {
+    "binType": "Non-Recyclable",
+    "day": "Thursday",
+    "date": "18 December 2025"
   }
 ]
