@@ -1,17 +1,17 @@
 [
   {
-    "binType": "Blue",
-    "day": "Saturday",
-    "date": "03 January 2026"
-  },
-  {
-    "binType": "Brown Bin",
-    "day": "Saturday",
-    "date": "03 January 2026"
-  },
-  {
     "binType": "Non-Recyclable",
     "day": "Thursday",
     "date": "08 January 2026"
+  },
+  {
+    "binType": "Blue",
+    "day": "Thursday",
+    "date": "15 January 2026"
+  },
+  {
+    "binType": "Brown Bin",
+    "day": "Thursday",
+    "date": "15 January 2026"
   }
 ]
