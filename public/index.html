@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Bin Collections</title>
+        <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    </head>
+    <body>
+        <div id="app">
+            <h1>Next Bin Collection</h1>
+            <div v-if="binData.length">
+                <div v-for="(bin, index) in binData" :key="index">
+                    <p>{{ bin.binType }}</p>
+                    <p>{{ bin.day }} - {{ bin.date }}</p>
+                </div>
+            </div>
+            <p v-else>Loading...</p>
+        </div>
+
+        <script>
+            const { createApp, ref, onMounted } = Vue;
+
+            createApp({
+                setup() {
+                    const binData = ref([]);
+
+                    onMounted(async () => {
+                        const res = await fetch("/binCollections.json");
+                        binData.value = await res.json();
+                    });
+
+                    return { binData };
+                },
+            }).mount("#app");
+        </script>
+    </body>
+</html>

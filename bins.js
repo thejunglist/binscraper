@@ -109,7 +109,7 @@ import fs from "fs";
 
     // Write data to JSON file
     fs.writeFile(
-      "binCollections.json",
+      "./public/binCollections.json",
       JSON.stringify(binData, null, 2),
       (err) => {
         if (err) {
