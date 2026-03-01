@@ -2,37 +2,113 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
+        <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Bin Collections</title>
-        <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+        <title>Dashboard</title>
+        <link rel="stylesheet" href="styles.css" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&family=Lexend:wght@100..900&display=swap"
+            rel="stylesheet"
+        />
     </head>
     <body>
-        <div id="app">
-            <h1>Next Bin Collection</h1>
-            <div v-if="binData.length">
-                <div v-for="(bin, index) in binData" :key="index">
-                    <p>{{ bin.binType }}</p>
-                    <p>{{ bin.day }} - {{ bin.date }}</p>
-                </div>
+        <div class="container">
+            <div class="item date">
+                <p id="clock"></p>
+                <p id="date"></p>
             </div>
-            <p v-else>Loading...</p>
+            <div class="item weather">
+                <span
+                    class="iconify"
+                    id="weather-icon"
+                    data-icon="wi:na"
+                ></span>
+                <p class="weather-desc"></p>
+                <p class="temperature"></p>
+            </div>
+
+            <div class="item bin-collection"></div>
         </div>
-
         <script>
-            const { createApp, ref, onMounted } = Vue;
+            async function loadDashboard() {
+                // Fetch weather
+                const weatherRes = await fetch("/api/weather");
+                const weather = await weatherRes.json();
+                console.log("Weather in frontend:", weather);
+                // Fetch bin data
+                const binRes = await fetch("/binCollections.json");
+                const binData = await binRes.json();
 
-            createApp({
-                setup() {
-                    const binData = ref([]);
+                // Update the DOM
+                function getWeatherInfo(code) {
+                    const weather = {
+                        0: { desc: "Clear Sky", icon: "wi:day-sunny" },
+                        1: { desc: "Mainly Clear", icon: "wi:day-cloudy" },
+                        2: { desc: "Partly Cloudy", icon: "wi:day-cloudy" },
+                        3: { desc: "Overcast", icon: "wi:cloudy" },
+                        45: { desc: "Fog", icon: "wi:fog" },
+                        48: { desc: "Icy Fog", icon: "wi:fog" },
+                        51: { desc: "Light Drizzle", icon: "wi:sprinkle" },
+                        53: { desc: "Drizzle", icon: "wi:sprinkle" },
+                        55: { desc: "Heavy Drizzle", icon: "wi:sprinkle" },
+                        61: { desc: "Light Rain", icon: "wi:rain" },
+                        63: { desc: "Rain", icon: "wi:rain" },
+                        65: { desc: "Heavy Rain", icon: "wi:rain" },
+                        71: { desc: "Light Snow", icon: "wi:snow" },
+                        73: { desc: "Snow", icon: "wi:snow" },
+                        75: { desc: "Heavy Snow", icon: "wi:snow" },
+                        77: { desc: "Hail", icon: "wi:hail" },
+                        80: { desc: "Light Showers", icon: "wi:showers" },
+                        81: { desc: "Showers", icon: "wi:showers" },
+                        82: { desc: "Heavy Showers", icon: "wi:showers" },
+                        85: { desc: "Snow Showers", icon: "wi:snow" },
+                        95: { desc: "Thunderstorm", icon: "wi:thunderstorm" },
+                    };
+                    return weather[code] || { desc: "Unknown", icon: "wi:na" };
+                }
+                const info = getWeatherInfo(weather.weatherCode);
+                document.querySelector(".weather-desc").innerHTML = info.desc;
+                document
+                    .getElementById("weather-icon")
+                    .setAttribute("data-icon", info.icon);
+                document.querySelector(".temperature").innerHTML =
+                    `${weather.temperature}°C`;
+                document.querySelector(".bin-collection").textContent =
+                    `The next bin is the ${binData[0].binType} bin on ${binData[0].day} ${binData[0].date}`;
+            }
 
-                    onMounted(async () => {
-                        const res = await fetch("/binCollections.json");
-                        binData.value = await res.json();
+            loadDashboard();
+
+            function updateClock() {
+                const getOrdinalNum = (now) => {
+                    let selector;
+
+                    if (now <= 0) {
+                        selector = 4;
+                    } else if ((now > 3 && number < 21) || now % 10 > 3) {
+                        selector = 0;
+                    } else {
+                        selector = now % 10;
+                    }
+
+                    return now + ["th", "st", "nd", "rd", ""][selector];
+                };
+                const now = new Date();
+
+                document.getElementById("clock").innerHTML =
+                    now.toLocaleTimeString("en-GB");
+                document.getElementById("date").innerHTML =
+                    now.toLocaleDateString("en-GB", {
+                        weekday: "long",
+                        day: "numeric",
+                        month: "long",
                     });
+            }
 
-                    return { binData };
-                },
-            }).mount("#app");
+            setInterval(updateClock, 1000);
+            updateClock();
         </script>
     </body>
 </html>

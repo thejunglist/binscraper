@@ -1,0 +1,68 @@
+html,
+body {
+    width: 880px;
+    height: 528px;
+    margin: 0;
+    overflow: hidden;
+}
+
+body {
+    width: 880px;
+    height: 528px;
+    margin: 0;
+    overflow: hidden;
+    font-family: "Lexend", sans-serif;
+    background: white;
+    color: black;
+}
+
+.container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: 880px;
+    height: 528px;
+}
+
+.item {
+    border: 2px solid black;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+#clock {
+    font-size: 40px;
+    font-weight: 700;
+    margin: 0;
+}
+
+#date {
+    font-size: 22px;
+    margin-top: 10px;
+}
+
+#weather-icon {
+    font-size: 120px;
+}
+
+.weather-desc {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 10px 0 0 0;
+}
+
+.temperature {
+    font-size: 40px;
+    font-weight: 700;
+    margin: 10px 0 0 0;
+}
+
+.bin-collection {
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.5;
+}
